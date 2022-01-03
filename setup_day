@@ -1,0 +1,28 @@
+#!/bin/sh
+
+SESSION_COOKIE='session=53616c7465645f5f724e60b3a90f2e8a66d5a362e092db91b1cc0d38fe52b690ae20fbf70e2a22811377020b3fcc4592'
+
+if [ -n "$1" ]; then
+	DAY="$1"
+else
+	DAY="$(date "+%e" | sed -e 's/^[ \t]*//')"
+fi
+
+echo "Setting up package and input for day $DAY"
+DIRECTORY="./src/day$DAY"
+if [ ! -d "$DIRECTORY" ]; then
+	echo "Directory does not exist, creating it now"
+	mkdir "$DIRECTORY"
+	cat << EOF > "$DIRECTORY/day$DAY.kt"
+package day$DAY
+
+import utils.FileUtil
+
+fun main() {
+    val input = FileUtil.readFileToString("$DIRECTORY/input.txt")
+}
+EOF
+	touch "$DIRECTORY/sample_input.txt"
+fi
+
+curl --cookie $SESSION_COOKIE "https://adventofcode.com/2021/day/$DAY/input" -o "$DIRECTORY/input.txt"
