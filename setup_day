@@ -1,0 +1,31 @@
+#!/bin/sh
+
+if [[ -z "${AOC_SESSION_COOKIE}" ]]; then
+	echo "AOC_SESSION_COOKIE environment variable required to fetch input"
+	exit 1
+fi
+
+if [ -n "$1" ]; then
+	DAY="$1"
+else
+	DAY="$(date "+%e" | sed -e 's/^[ \t]*//')"
+fi
+
+echo "Setting up package and input for day $DAY"
+DIRECTORY="./src/day$DAY"
+if [ ! -d "$DIRECTORY" ]; then
+	echo "Directory does not exist, creating it now"
+	mkdir "$DIRECTORY"
+	cat << EOF > "$DIRECTORY/day$DAY.kt"
+package day$DAY
+
+import utils.FileUtil
+
+fun main() {
+    val input = FileUtil.readFileToString("$DIRECTORY/input.txt")
+}
+EOF
+	touch "$DIRECTORY/sample_input.txt"
+fi
+
+curl --cookie $AOC_SESSION_COOKIE "https://adventofcode.com/2021/day/$DAY/input" -o "$DIRECTORY/input.txt"
